@@ -25,9 +25,14 @@ public:
 
   ///* state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   VectorXd x_;
+  VectorXd x_aug_;
 
   ///* state covariance matrix
   MatrixXd P_;
+  MatrixXd P_aug_;
+
+  MatrixXd R_lidar_;
+  MatrixXd R_radar_;
 
   ///* predicted sigma points matrix
   MatrixXd Xsig_pred_;
@@ -74,6 +79,9 @@ public:
   ///* the current NIS for laser
   double NIS_laser_;
 
+
+  double epsilon_;
+
   /**
    * Constructor
    */
@@ -83,6 +91,13 @@ public:
    * Destructor
    */
   virtual ~UKF();
+
+  MatrixXd AugmentedSigmaPoints();
+  void SigmaPointPrediction(double delta_t);
+  void PredictMeanAndCovariance();
+  double NormalizeAngle(double angle);
+  void UpdateState(MatrixXd S, VectorXd z, VectorXd z_pred, MatrixXd Zsig);
+  void checkPosition(double &px, double &py);
 
   /**
    * ProcessMeasurement
@@ -108,6 +123,9 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  /// Initializes UKF
+  void Initialize(MeasurementPackage meas_package);
 };
 
 #endif /* UKF_H */
